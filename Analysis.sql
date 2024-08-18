@@ -23,14 +23,14 @@ SELECT *
 FROM listings_staging2
 WHERE accommodates = (SELECT MAX(accommodates) FROM listings_staging2);
 
--- Visualization of listings 
-
-SELECT host_name, neighbourhood_cleansed, latitude, longitude, property_type, price, review_scores_rating
-FROM listings_staging2;
-
 -- Number by neighbourhood
 
 SELECT neighbourhood_cleansed, COUNT(neighbourhood_cleansed) AS num_listings
+FROM listings_staging2
+GROUP BY neighbourhood_cleansed;
+
+SELECT neighbourhood_cleansed,
+COUNT(*) * 100 / (SELECT COUNT(*) FROM listings_staging2) AS percentage
 FROM listings_staging2
 GROUP BY neighbourhood_cleansed;
 
@@ -59,6 +59,19 @@ FROM listings_staging2
 GROUP BY property_type
 ORDER BY num_listings DESC;
 
+SELECT property_type,
+	COUNT(*) * 100 / (SELECT COUNT(*) from listings_staging2) AS percentage
+FROM listings_staging2
+GROUP BY property_type
+ORDER BY percentage DESC;
+
+-- Number of "Entire vacation homes" on average
+
+SELECT neighbourhood_cleansed,
+COUNT(CASE WHEN property_type = 'Entire vacation home' THEN 1 END) * 100 / COUNT(*) AS percentage
+FROM listings_staging2
+GROUP BY neighbourhood_cleansed;
+ 
 -- Average price by property type
 
 SELECT property_type, COUNT(property_type) as num_listings, AVG(price) AS avg_price
@@ -78,7 +91,6 @@ SELECT property_type, COUNT(property_type) as num_listings, AVG(bathrooms) AS av
 FROM listings_staging2
 GROUP BY property_type
 ORDER BY num_listings DESC;
-
 
 
 
